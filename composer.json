@@ -9,7 +9,6 @@
         "doctrine/dbal": "^4.4",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
-        "laravel/telescope": "^5.20",
         "laravel/tinker": "^2.9",
         "predis/predis": "2.0",
         "spatie/laravel-permission": "^6.25",
