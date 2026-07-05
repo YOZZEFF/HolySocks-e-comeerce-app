@@ -36,10 +36,7 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 COPY --chown=www-data:www-data . .
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN mkdir -p storage/logs storage/framework/views storage/framework/cache storage/framework/sessions && \
     chown -R www-data:www-data storage bootstrap/cache && \
