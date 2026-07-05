@@ -1,16 +1,46 @@
-FROM php:8.4-fpm
+# =============================================================================
+# Laravel on Railway — FrankenPHP
+# =============================================================================
+# Local testing:
+#   docker build -t wearvaback .
+#   docker run -e PORT=8080 -e APP_ENV=production -e APP_KEY=<your-key> -p 8080:8080 wearvaback
+#
+# Railway auto-detects this Dockerfile. No Start Command needed.
+# Set environment variables (APP_KEY, DB_*, etc.) in the Railway dashboard.
+#
+# If config:cache freezes build-time env vars, remove the caching lines below
+# and Laravel will read Railway's runtime env vars instead.
+# =============================================================================
 
-RUN apt-get update && apt-get install -y \
-    zip unzip git curl libpng-dev libonig-dev libxml2-dev
+FROM dunglas/frankenphp:php8.4
 
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN install-php-extensions \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
+WORKDIR /app
 
-COPY . .
+COPY Caddyfile /etc/caddy/Caddyfile
 
-RUN composer install --no-dev --optimize-autoloader
+COPY --chown=www-data:www-data . .
 
-CMD php -S 0.0.0.0:$PORT -t public
+RUN composer install --no-dev --optimize-autoloader --no-interaction && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache
+
+RUN mkdir -p storage/logs storage/framework/views storage/framework/cache storage/framework/sessions && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
+
+ENV DOCUMENT_ROOT=/app/public
+
+EXPOSE 8080
+
+CMD ["frankenphp", "run"]

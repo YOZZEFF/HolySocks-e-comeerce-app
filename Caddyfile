@@ -1,0 +1,8 @@
+{
+	:{$PORT}
+}
+
+root * /app/public
+php_fastcgi
+file_server
+encode zstd gzip
