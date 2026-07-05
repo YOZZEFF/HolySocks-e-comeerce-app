@@ -31,6 +31,9 @@ WORKDIR /app
 
 COPY Caddyfile /etc/caddy/Caddyfile
 
+COPY --chown=www-data:www-data docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 COPY --chown=www-data:www-data . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction && \
@@ -46,4 +49,5 @@ ENV DOCUMENT_ROOT=/app/public
 
 EXPOSE 8080
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["frankenphp", "run"]
